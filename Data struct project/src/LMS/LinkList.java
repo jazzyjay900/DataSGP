@@ -39,4 +39,14 @@ public class LinkList {
       System.err.println("List is full! Out of memory");
     }
   }  
+  
+  public void displayBooks() {
+    Node temp = head;
+    while (temp != null) {
+      System.out.println("Title: " + temp.book.title + ", Author: " + temp.book.author 
+                 + ", ISBN: " + temp.book.ISBN + ", Available: " 
+                 + (temp.book.isAvailable ? "Yes" : "No"));
+                 temp = temp.next;
+    }
+  }
 }
