@@ -1,6 +1,7 @@
 package LMS;
 
-public BookNode {
+public class BookNode {
+  
   private Books Data;
   private Node nextNode;
 
@@ -21,8 +22,8 @@ public BookNode {
     nextNode = null;
   }
 
-  public BookNode() {
-    Data = new Books();
+  public BookNode(String title, String author, int ISBN) {
+    Data = new Books(title, author, ISBN);
     nextNode = null;
   }
 
@@ -30,6 +31,14 @@ public BookNode {
   public BookNode(Node node) {
     this.Data = node.Data;
     this.nextNode = nextNode;
+  }
+
+  public Books getdata() {
+    return Data;
+  }
+
+  public void setdata(Books Data) {
+    this.Data = Data;
   }
 
   public Node getNextNode() {
