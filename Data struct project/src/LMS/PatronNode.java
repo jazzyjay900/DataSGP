@@ -23,7 +23,31 @@ public class PatronNode() {
     node = null;
   }
 
-  public PatronNode(
+  public PatronNode(String name, int libaryCardNum, ArrayList<Books> checkedOutBooks) {
 
+    data = new Patron(name, libaryCardNum, checkedOutBooks);
+    node = null;
+  }
 
+  public PatronNode(PatronNode obj) {
+
+    this.data = obj.data;
+    this.node = obj.node;
+  }
+
+  public Patron getData() {
+    return data;
+  }
+
+  public void setData(Patron data) {
+    this.data = data;
+  }
+
+  public PatronNode getNode() {
+    return node;
+  }
+
+  public void setNode(PatronNode node) {
+    this.node = node;
+  }
 }
