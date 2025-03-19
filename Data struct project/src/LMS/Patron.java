@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Patron {
 	private String name;
 	private int libraryCardNum;
-	private ArrayList<Books> checkedOutBooks;
+	private ArrayList<Book> checkedOutBooks;
 	
 	//default constructor
 	public Patron() {
@@ -14,10 +14,10 @@ public class Patron {
 		checkedOutBooks = new ArrayList<>();
 	}
 	//primary constructor
-	public Patron(String name,int libaryCardNum,ArrayList<Books>  checkedOutBooks ) {
+	public Patron(String name,int libaryCardNum) {
 		this.name = name;
 		this.libraryCardNum = libaryCardNum;
-		this.checkedOutBooks = checkedOutBooks;
+		checkedOutBooks = new ArrayList<>();
 	}
 	//copy constructor
 	public Patron(Patron obj) {
@@ -38,22 +38,21 @@ public class Patron {
 	public void setLibaryCardNum(int libaryCardNum) {
 		this.libraryCardNum = libaryCardNum;
 	}
-	public ArrayList<Books> getCheckedOutBooks() {
+	public ArrayList<Book> getCheckedOutBooks() {
 		return checkedOutBooks;
 	}
-	public void setCheckedOutBooks(ArrayList<Books> checkedOutBooks) {
-		this.checkedOutBooks = checkedOutBooks;
-	}
 	//methods
-	public void checkOutBook(Books book) {
+	public void checkOutBook(Book book) {
 		if(book.getIsavailable()) {
 			book.checkOut();
 			checkedOutBooks.add(book);
+		}else {
+			{System.out.println(book.getTitle()+" Is currently unabailable");}
 		}
 	}
 	
-	public void returnBook(Books book) {
-		if(checkedOutBooks.remove(book)) {
+	public void returnBook(Book book) {
+		if(checkedOutBooks.contains(book)) {
 			book.checkIn();
 			System.out.println(name +" returned "+book.getTitle());
 		}else {System.out.println(name +" did not check out "+book.getTitle());}
