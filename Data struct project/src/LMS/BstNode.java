@@ -6,8 +6,7 @@ public class BstNode {
 
   public BstNode(Books book) {
     this.book = book;
-    left = null;
-    right = null;
+    this.left = this.right = null;
   }
 }
 
