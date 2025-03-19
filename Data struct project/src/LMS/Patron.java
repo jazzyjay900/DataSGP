@@ -5,25 +5,25 @@ import java.util.ArrayList;
 public class Patron {
 	private String name;
 	private int libraryCardNum;
-	private ArrayList<Book> checkedOutBooks;
+	private BookStack checkedOutBooks;
 	
 	//default constructor
 	public Patron() {
 		name="Jane Doe";
 		libraryCardNum = 000000;
-		checkedOutBooks = new ArrayList<>();
+		checkedOutBooks = new BookStack();
 	}
 	//primary constructor
 	public Patron(String name,int libaryCardNum) {
 		this.name = name;
 		this.libraryCardNum = libaryCardNum;
-		checkedOutBooks = new ArrayList<>();
+		checkedOutBooks = new BookStack();
 	}
 	//copy constructor
 	public Patron(Patron obj) {
 		this.name = obj.name;
 		this.libraryCardNum = obj.libraryCardNum;
-		 this.checkedOutBooks = new ArrayList<>(obj.checkedOutBooks);
+		 this.checkedOutBooks = new BookStack();
 	}
 	//getters and setters
 	public String getName() {
@@ -38,24 +38,26 @@ public class Patron {
 	public void setLibaryCardNum(int libaryCardNum) {
 		this.libraryCardNum = libaryCardNum;
 	}
-	public ArrayList<Book> getCheckedOutBooks() {
+	public BookStack getCheckedOutBooks() {
 		return checkedOutBooks;
+	}
+	public void setCheckedOutBooks(BookStack checkedOutBooks) {
+		this.checkedOutBooks = checkedOutBooks;
 	}
 	//methods
 	public void checkOutBook(Book book) {
 		if(book.getIsavailable()) {
 			book.checkOut();
-			checkedOutBooks.add(book);
+			checkedOutBooks.Push(book);
 		}else {
 			{System.out.println(book.getTitle()+" Is currently unabailable");}
 		}
 	}
 	
 	public void returnBook(Book book) {
-		if(checkedOutBooks.contains(book)) {
-			book.checkIn();
-			System.out.println(name +" returned "+book.getTitle());
-		}else {System.out.println(name +" did not check out "+book.getTitle());}
+		checkedOutBooks.Pop();
+		book.checkIn();
+		System.out.println(name +" returned "+book.getTitle());
 	}
 	
 	
