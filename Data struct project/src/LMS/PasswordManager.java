@@ -45,7 +45,7 @@ public class PasswordManager {
         }
     }
 
-    // Generates a cryptographic salt so that identical password dont have the same hash
+    // Generates salt so that identical password dont have the same hash
     private static String generateSalt() {
         byte[] salt = new byte[16];
         random.nextBytes(salt); 
