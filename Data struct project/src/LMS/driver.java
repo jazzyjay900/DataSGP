@@ -10,16 +10,18 @@ public class driver {
 		bl.addBookAtBack(book1);
 		bl.addBookAtBack(book2);
 		bl.addBookAtBack(book3);
+		User user = new User();
+		admin admin = new admin("mark","bigmark",34564);
 		
-		Patron p1 = new Patron("jane",332);
+		
+		Patron p1 = new Patron("jane","",332);
 		p1.checkOutBook(book1);
 		p1.checkOutBook(book2);
 		p1.checkOutBook(book3);
-		Patron p2 = new Patron("jake",432);
+		Patron p2 = new Patron("jake","",432);
 		PatronLinkedList pl = new PatronLinkedList();
 		pl.addPatrontoBack(p1);
 		pl.addPatrontoBack(p2);
-		
 	
 		p1.getCheckedOutBooks().StackDisplay();
 		//bl.displayBooks();

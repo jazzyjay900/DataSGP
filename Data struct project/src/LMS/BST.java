@@ -1,58 +1,60 @@
 package LMS;
 
-public class BST() {
+public class BST {
 
-  private BstNode root;
+	
+	private BstNode root;
 
-  public void addBook(Books book) {
-    root = addRecursive(root, book);
-  }
+	  public void addBook(Book book) {
+	    root = addRecursive(root, book);
+	  }
 
-  private BstNode addRecursive(BstNode current, Books book) {
-    if (current == null) {
-        return new BstNode(book);
-    }
+	  private BstNode addRecursive(BstNode current, Book book) {
+	    if (current == null) {
+	        return new BstNode(book);
+	    }
 
-    if (book.title.compareTo(current.book.title) < 0) {
-        current.left = addRecursive(current.left, book);
-    } else if (book.title.compareTo(current.book.title) > 0) {
-        current.right = addRecursive(current.right, book);
-    }
-    return current;
-  }
+	    if (book.getTitle().compareTo(current.book.getTitle()) < 0) {
+	        current.left = addRecursive(current.left, book);
+	    } else if (book.getTitle().compareTo(current.book.getTitle()) > 0) {
+	        current.right = addRecursive(current.right, book);
+	    }
+	    return current;
+	  }
 
-  public Books search(String key) {
-    return searchRecursive(root, key);
-  }
+	  public Book search(String key) {
+	    return searchRecursive(root, key);
+	  }
 
-  private Books searchRecursive(BstNode bst, String key) {
-    if (bst == null) {
-        return null;
-    } 
-    if (key.equals(bst.book.title) || key.equals(bst.book.author) || key.equals(bst.book.isbn) {
-        return bst.book;
-    } 
-   
-    if (key.compareTo(bst.book.title) < 0) {
-        return searchRecursive(bst.left, key);
-    } 
-    else {
-        return searchRecursive(bst.right, key);
-    }
-  }
- 
-  public void displayBooks() {
-    traverseInOrder(root);
-  }
+	  @SuppressWarnings("unlikely-arg-type")
+	private Book searchRecursive(BstNode bst, String key) {
+	    if (bst == null) {
+	        return null;
+	    } 
+	    if (key.equals(bst.book.getTitle()) || key.equals(bst.book.getAuthor()) || key.equals(bst.book.getISBN())) {
+	        return bst.book;
+	    } 
+	   
+	    if (key.compareTo(bst.book.getTitle()) < 0) {
+	        return searchRecursive(bst.left, key);
+	    } 
+	    else {
+	        return searchRecursive(bst.right, key);
+	    }
+	  }
+	 
+	  public void displayBooks() {
+	    traverseInOrder(root);
+	  }
 
-  public void traverseInOrder(BstNode node) {
-    if (node != null) {
-        traverseInOrder(node.left);
-        System.out.print("Title: " + node.book.title + ", Author: " + node.book.author + ", ISBN: " + node.book.ISBN + ", Available: " + node.book.isAvailable);
-        traverseInOrder(node.right);
-    }
-  }
-  
-  
+	  public void traverseInOrder(BstNode node) {
+	    if (node != null) {
+	        traverseInOrder(node.left);
+	        System.out.print("Title: " + node.book.getTitle() + ", Author: " + node.book.getAuthor() + ", ISBN: " + node.book.getISBN() + ", Available: " + node.book.getIsavailable());
+	        traverseInOrder(node.right);
+	    }
+	  }
+	
+	
+	
 }
-  

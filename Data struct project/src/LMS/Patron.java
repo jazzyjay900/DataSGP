@@ -1,29 +1,32 @@
 package LMS;
 
-import java.util.ArrayList;
 
-public class Patron {
-	private String name;
-	private int libraryCardNum;
+public class Patron extends User {
 	private BookStack checkedOutBooks;
+	private BookStack holder;
 	
 	//default constructor
 	public Patron() {
 		name="Jane Doe";
+		Password = "Admin";
 		libraryCardNum = 000000;
 		checkedOutBooks = new BookStack();
+		holder = new BookStack();
 	}
 	//primary constructor
-	public Patron(String name,int libaryCardNum) {
+	public Patron(String name,String Password,int libaryCardNum) {
 		this.name = name;
+		this.Password = Password;
 		this.libraryCardNum = libaryCardNum;
 		checkedOutBooks = new BookStack();
+		holder = new BookStack();
 	}
 	//copy constructor
 	public Patron(Patron obj) {
 		this.name = obj.name;
 		this.libraryCardNum = obj.libraryCardNum;
 		 this.checkedOutBooks = new BookStack();
+		 this.holder = new BookStack();
 	}
 	//getters and setters
 	public String getName() {
@@ -31,6 +34,12 @@ public class Patron {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public String getPassword() {
+		return Password;
+	}
+	public void setPassword(String password) {
+		this.Password = password;
 	}
 	public int getLibaryCardNum() {
 		return libraryCardNum;
@@ -54,10 +63,25 @@ public class Patron {
 		}
 	}
 	
-	public void returnBook(Book book) {
+	
+	public void Undo() {
+		holder.Push(checkedOutBooks.Pop());
+		holder.getTop().getdata().checkIn();
+		
+	}
+	
+	public void Redo() {
+		checkedOutBooks.Push(holder.Pop());
+		checkedOutBooks.getTop().getdata().checkOut();
+	}
+	
+	
+	
+	
+	public void returnBook() {
+		checkedOutBooks.getTop().getdata().checkIn();
+		System.out.println(name +" returned "+checkedOutBooks.getTop().getdata().getTitle());
 		checkedOutBooks.Pop();
-		book.checkIn();
-		System.out.println(name +" returned "+book.getTitle());
 	}
 	
 	

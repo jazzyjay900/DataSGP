@@ -23,8 +23,8 @@ public class patronNode {
 	  }
 
 	//primary Constructor 3
-	  public patronNode(String name, int libaryCardNum) {
-	    data = new Patron(name, libaryCardNum);
+	  public patronNode(String name,String Password, int libaryCardNum) {
+	    data = new Patron(name,Password, libaryCardNum);
 	    node = null;
 	  }
 

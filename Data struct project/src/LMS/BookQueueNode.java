@@ -22,4 +22,5 @@ public class BookQueueNode {
     public void setNext(BookQueueNode next) {
         this.next = next;
     }
+
 }
