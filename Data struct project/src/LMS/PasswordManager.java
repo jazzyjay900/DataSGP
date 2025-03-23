@@ -1,6 +1,3 @@
-//Rajay Trowers
-
-
 package LMS;
 
 import java.io.*;
@@ -52,58 +49,112 @@ public class PasswordManager {
     private static String generateSalt() {
         byte[] salt = new byte[16];
         random.nextBytes(salt); 
-        return HexFormat.of().formatHex(salt);
+        return bytesToHex(salt);
     }
 
-    // yah so hashes the passwords using "SHA-256" along with the salts
+    // Utility method to convert bytes to hexadecimal string
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
+    // Utility method to convert hexadecimal string to bytes
+    private static byte[] hexToBytes(String hex) {
+        int len = hex.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
+                                 + Character.digit(hex.charAt(i+1), 16));
+        }
+        return data;
+    }
+
+    // Hashes the passwords using "SHA-256" along with the salts
     private static String hashPassword(String password, String salt) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(HexFormat.of().parseHex(salt)); // Apply salt before hashing
-            return HexFormat.of().formatHex(md.digest(password.getBytes()));
+            md.update(hexToBytes(salt)); // Apply salt before hashing
+            return bytesToHex(md.digest(password.getBytes()));
         } catch (NoSuchAlgorithmException | IllegalArgumentException e) {
             throw new RuntimeException("Hashing failed", e);
         }
     }
 
-    // validate users using name and password
+    // Validate users using name and password
     public boolean authenticate(String name, String password) {
-        return patrons.stream()
-            .filter(p -> p.getName().equals(name))
-            .findFirst()
-            .map(p -> hashPassword(password, p.getSalt()).equals(p.getHashedPassword()))
-            .orElse(false);
+        for (Patron p : patrons) {
+            if (p.getName().equals(name)) {
+                String hashedAttempt = hashPassword(password, p.getSalt());
+                if (hashedAttempt.equals(p.getHashedPassword())) {
+                    return true;
+                }
+                return false;
+            }
+        }
+        return false;
     }
 
-    // Registers a new users and returns a randomly generated default password
+    // Registers a new user and returns a randomly generated default password
     public String registerPatron(String name, int libraryCardNum) {
-        if (patrons.stream().anyMatch(p -> p.getLibaryCardNum() == libraryCardNum)) return null; // Prevent duplicate accounts
+        // Check for duplicate library card numbers
+        for (Patron p : patrons) {
+            if (p.getLibaryCardNum() == libraryCardNum) {
+                System.out.println("A patron with this library card number already exists.");
+                return null;
+            }
+        }
         
         String defaultPassword = generateRandomPassword(); // Generate a default password
         String salt = generateSalt(); // Generate a new salt
-        patrons.add(new Patron(name, libraryCardNum, new ArrayList<>(), salt, hashPassword(defaultPassword, salt))); // Add user to list
+        String hashedPassword = hashPassword(defaultPassword, salt);
+        
+        patrons.add(new Patron(name, libraryCardNum, new ArrayList<>(), salt, hashedPassword)); // Add user to list
         savePatrons(); // Save changes to file
         return defaultPassword;
     }
 
     // Allows a user to change their password
     public boolean changePassword(String name, String newPassword) {
-        return patrons.stream()
-            .filter(p -> p.getName().equals(name))
-            .findFirst()
-            .map(p -> {
+        for (Patron p : patrons) {
+            if (p.getName().equals(name)) {
                 p.setSalt(generateSalt()); // Generate new salt
                 p.setHashedPassword(hashPassword(newPassword, p.getSalt())); // Hash new password
                 savePatrons(); // Save changes
                 return true;
-            })
-            .orElse(false);
+            }
+        }
+        return false;
     }
 
     // Generates a random secure password 
     private static String generateRandomPassword() {
-        return random.ints(8, 33, 127) // Generates 8-character 
-            .mapToObj(i -> String.valueOf((char) i))
-            .collect(Collectors.joining());
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < 8; i++) {
+            // Generate characters between ASCII 33 and 126 (printable characters)
+            password.append((char) (random.nextInt(94) + 33));
+        }
+        return password.toString();
+    }
+    
+
+    public Patron getPatronByName(String name) {
+        for (Patron p : patrons) {
+            if (p.getName().equals(name)) {
+                return p;
+            }
+        }
+        return null;
+    }
+    
+    // Display all patrons for admin
+    public void displayAllPatrons() {
+        System.out.println("--- All Registered Patrons ---");
+        for (Patron p : patrons) {
+            System.out.println("Name: " + p.getName() + ", Library Card #: " + p.getLibaryCardNum());
+        }
+        System.out.println("----------------------------");
     }
 }
