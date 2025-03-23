@@ -1,53 +1,55 @@
 package LMS;
 
-public class PatronNode() {
+import java.util.ArrayList;
+
+public class patronNode {
+    private Patron data;
+    private patronNode node;
+
+    // Default Constructor
+    public patronNode() {
+        data = new Patron();
+        node = null;
+    }
   
-  private Patron data;
-  private PatronNode node;
+    // Primary Constructor 1
+    public patronNode(Patron Data, patronNode Node) {
+        data = new Patron(Data);
+        node = Node;
+    }
 
-  public PatronNode() {
+    // Primary Constructor 2
+    public patronNode(Patron Data) {
+        data = new Patron(Data);
+        node = null;
+    }
 
-    data = new Patron();
-    node = null;
-  }
+    // Primary Constructor 3
+    public patronNode(String name, String Password, int libaryCardNum) {
+        data = new Patron(name, Password, libaryCardNum);
+        node = null;
+    }
 
-  public PatronNode(Patron Data, PatronNode Node) {
+    // Copy Constructor
+    public patronNode(patronNode obj) {
+        this.data = obj.data;
+        this.node = obj.node;
+    }
 
-    data = new Patron(Data);
-    node = Node;
-  }
+    // Getters and setters
+    public Patron getData() {
+        return data;
+    }
 
-  public PatronNode(Patron Data) {
+    public void setData(Patron data) {
+        this.data = data;
+    }
 
-    data = new Patron(Data);
-    node = null;
-  }
+    public patronNode getNode() {
+        return node;
+    }
 
-  public PatronNode(String name, int libaryCardNum, ArrayList<Books> checkedOutBooks) {
-
-    data = new Patron(name, libaryCardNum, checkedOutBooks);
-    node = null;
-  }
-
-  public PatronNode(PatronNode obj) {
-
-    this.data = obj.data;
-    this.node = obj.node;
-  }
-
-  public Patron getData() {
-    return data;
-  }
-
-  public void setData(Patron data) {
-    this.data = data;
-  }
-
-  public PatronNode getNode() {
-    return node;
-  }
-
-  public void setNode(PatronNode node) {
-    this.node = node;
-  }
+    public void setNode(patronNode node) {
+        this.node = node;
+    }
 }
