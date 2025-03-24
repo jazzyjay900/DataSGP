@@ -1,0 +1,170 @@
+import java.util.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+// Book Class
+class Book {
+    String title, author, ISBN;
+    boolean isAvailable;
+
+    Book(String title, String author, String ISBN) {
+        this.title = title;
+        this.author = author;
+        this.ISBN = ISBN;
+        this.isAvailable = true;
+    }
+}
+
+// Binary Search Tree for Book Management
+class BookBST {
+    class Node {
+        Book book;
+        Node left, right;
+        Node(Book book) { this.book = book; }
+    }
+    Node root;
+    
+    void insert(Book book) {
+        root = insertRec(root, book);
+    }
+    
+    Node insertRec(Node root, Book book) {
+        if (root == null) return new Node(book);
+        if (book.title.compareTo(root.book.title) < 0) root.left = insertRec(root.left, book);
+        else root.right = insertRec(root.right, book);
+        return root;
+    }
+    
+    Book search(String title) {
+        Node res = searchRec(root, title);
+        return res != null ? res.book : null;
+    }
+    
+    Node searchRec(Node root, String title) {
+        if (root == null || root.book.title.equals(title)) return root;
+        if (title.compareTo(root.book.title) < 0) return searchRec(root.left, title);
+        return searchRec(root.right, title);
+    }
+}
+
+// Patron Class
+class Patron {
+    String name;
+    int libraryCardNumber;
+    List<Book> checkedOutBooks = new LinkedList<>();
+    
+    Patron(String name, int cardNumber) {
+        this.name = name;
+        this.libraryCardNumber = cardNumber;
+    }
+}
+
+// Library System
+class LibrarySystem {
+    BookBST bookBST = new BookBST();
+    Queue<Patron> checkoutQueue = new LinkedList<>();
+    Stack<Book> checkoutStack = new Stack<>();
+    List<Patron> patrons = new LinkedList<>();
+    
+    void addBook(String title, String author, String ISBN) {
+        bookBST.insert(new Book(title, author, ISBN));
+    }
+    
+    void addPatron(String name, int cardNumber) {
+        patrons.add(new Patron(name, cardNumber));
+    }
+    
+    void checkOutBook(Patron patron, Book book) {
+        if (book.isAvailable) {
+            book.isAvailable = false;
+            patron.checkedOutBooks.add(book);
+            checkoutStack.push(book);
+            checkoutQueue.add(patron);
+            System.out.println("Book checked out successfully.");
+        } else {
+            System.out.println("Book not available.");
+        }
+    }
+    
+    void returnBook(Patron patron, Book book) {
+        if (patron.checkedOutBooks.remove(book)) {
+            book.isAvailable = true;
+            checkoutQueue.remove(patron);
+            System.out.println("Book returned successfully.");
+        } else {
+            System.out.println("Book not found in patron's possession.");
+        }
+    }
+    
+    void displayStatistics() {
+        System.out.println("Total Books: " + countBooks(bookBST.root));
+        System.out.println("Total Patrons: " + patrons.size());
+        System.out.println("Current Checkouts: " + checkoutQueue.size());
+    }
+    
+    private int countBooks(BookBST.Node root) {
+        if (root == null) return 0;
+        return 1 + countBooks(root.left) + countBooks(root.right);
+    }
+}
+
+// GUI Interface
+class LibraryGUI extends JFrame {
+    LibrarySystem library;
+    JTextField titleField, authorField, isbnField;
+    JTextArea outputArea;
+    
+    LibraryGUI(LibrarySystem library) {
+        this.library = library;
+        setTitle("Library Management System");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new FlowLayout());
+        
+        titleField = new JTextField(10);
+        authorField = new JTextField(10);
+        isbnField = new JTextField(10);
+        outputArea = new JTextArea(10, 30);
+        JButton addBookBtn = new JButton("Add Book");
+        JButton searchBookBtn = new JButton("Search Book");
+        JButton statsBtn = new JButton("Show Stats");
+        
+        add(new JLabel("Title:")); add(titleField);
+        add(new JLabel("Author:")); add(authorField);
+        add(new JLabel("ISBN:")); add(isbnField);
+        add(addBookBtn);
+        add(searchBookBtn);
+        add(statsBtn);
+        add(new JScrollPane(outputArea));
+        
+        addBookBtn.addActionListener(e -> {
+            library.addBook(titleField.getText(), authorField.getText(), isbnField.getText());
+            outputArea.append("Book added: " + titleField.getText() + "\n");
+        });
+        
+        searchBookBtn.addActionListener(e -> {
+            Book book = library.bookBST.search(titleField.getText());
+            if (book != null) outputArea.append("Found: " + book.title + "\n");
+            else outputArea.append("Book not found\n");
+        });
+        
+        statsBtn.addActionListener(e -> {
+            outputArea.append("Total Books: " + library.countBooks(library.bookBST.root) + "\n");
+            outputArea.append("Total Patrons: " + library.patrons.size() + "\n");
+            outputArea.append("Current Checkouts: " + library.checkoutQueue.size() + "\n");
+        });
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        LibrarySystem library = new LibrarySystem();
+        library.addBook("Java Programming", "John Doe", "123456");
+        library.addPatron("Alice", 1001);
+        
+        SwingUtilities.invokeLater(() -> new LibraryGUI(library).setVisible(true));
+    }
+}
