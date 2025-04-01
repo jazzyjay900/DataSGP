@@ -1,170 +1,198 @@
-import java.util.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
-// Book Class
+// Book.java
 class Book {
-    String title, author, ISBN;
+    String title, author, isbn;
     boolean isAvailable;
-
-    Book(String title, String author, String ISBN) {
+    
+    public Book(String title, String author, String isbn) {
         this.title = title;
         this.author = author;
-        this.ISBN = ISBN;
+        this.isbn = isbn;
         this.isAvailable = true;
     }
 }
 
-// Binary Search Tree for Book Management
-class BookBST {
-    class Node {
-        Book book;
-        Node left, right;
-        Node(Book book) { this.book = book; }
-    }
-    Node root;
-    
-    void insert(Book book) {
-        root = insertRec(root, book);
-    }
-    
-    Node insertRec(Node root, Book book) {
-        if (root == null) return new Node(book);
-        if (book.title.compareTo(root.book.title) < 0) root.left = insertRec(root.left, book);
-        else root.right = insertRec(root.right, book);
-        return root;
-    }
-    
-    Book search(String title) {
-        Node res = searchRec(root, title);
-        return res != null ? res.book : null;
-    }
-    
-    Node searchRec(Node root, String title) {
-        if (root == null || root.book.title.equals(title)) return root;
-        if (title.compareTo(root.book.title) < 0) return searchRec(root.left, title);
-        return searchRec(root.right, title);
-    }
-}
+// Patron.java
+import java.util.LinkedList;
 
-// Patron Class
 class Patron {
-    String name;
-    int libraryCardNumber;
-    List<Book> checkedOutBooks = new LinkedList<>();
-    
-    Patron(String name, int cardNumber) {
+    String name, libraryCardNumber;
+    LinkedList<Book> checkedOutBooks;
+
+    public Patron(String name, String libraryCardNumber) {
         this.name = name;
-        this.libraryCardNumber = cardNumber;
+        this.libraryCardNumber = libraryCardNumber;
+        this.checkedOutBooks = new LinkedList<>();
     }
 }
 
-// Library System
-class LibrarySystem {
-    BookBST bookBST = new BookBST();
-    Queue<Patron> checkoutQueue = new LinkedList<>();
-    Stack<Book> checkoutStack = new Stack<>();
-    List<Patron> patrons = new LinkedList<>();
+// Library.java
+class Library {
+    LinkedList<Book> books = new LinkedList<>();
+    LinkedList<Patron> patrons = new LinkedList<>();
+    Stack<Book> undoCheckoutStack = new Stack<>();
+    Queue<Book> checkoutQueue = new LinkedList<>();
     
-    void addBook(String title, String author, String ISBN) {
-        bookBST.insert(new Book(title, author, ISBN));
+    public void addBook(Book book) {
+        books.add(book);
     }
     
-    void addPatron(String name, int cardNumber) {
-        patrons.add(new Patron(name, cardNumber));
+    public void registerPatron(Patron patron) {
+        patrons.add(patron);
     }
     
-    void checkOutBook(Patron patron, Book book) {
+    public void checkoutBook(Patron patron, Book book) {
         if (book.isAvailable) {
             book.isAvailable = false;
             patron.checkedOutBooks.add(book);
-            checkoutStack.push(book);
-            checkoutQueue.add(patron);
-            System.out.println("Book checked out successfully.");
+            undoCheckoutStack.push(book);
+            checkoutQueue.add(book);
+            JOptionPane.showMessageDialog(null, patron.name + " checked out " + book.title);
         } else {
-            System.out.println("Book not available.");
+            JOptionPane.showMessageDialog(null, "Book is already checked out.");
         }
     }
     
-    void returnBook(Patron patron, Book book) {
+    public void returnBook(Patron patron, Book book) {
         if (patron.checkedOutBooks.remove(book)) {
             book.isAvailable = true;
-            checkoutQueue.remove(patron);
-            System.out.println("Book returned successfully.");
-        } else {
-            System.out.println("Book not found in patron's possession.");
+            checkoutQueue.remove(book);
+            JOptionPane.showMessageDialog(null, patron.name + " returned " + book.title);
         }
     }
     
-    void displayStatistics() {
-        System.out.println("Total Books: " + countBooks(bookBST.root));
-        System.out.println("Total Patrons: " + patrons.size());
-        System.out.println("Current Checkouts: " + checkoutQueue.size());
-    }
-    
-    private int countBooks(BookBST.Node root) {
-        if (root == null) return 0;
-        return 1 + countBooks(root.left) + countBooks(root.right);
+    public void undoLastCheckout() {
+        if (!undoCheckoutStack.isEmpty()) {
+            Book lastCheckedOut = undoCheckoutStack.pop();
+            lastCheckedOut.isAvailable = true;
+            JOptionPane.showMessageDialog(null, "Undo checkout: " + lastCheckedOut.title);
+        }
     }
 }
 
-// GUI Interface
-class LibraryGUI extends JFrame {
-    LibrarySystem library;
-    JTextField titleField, authorField, isbnField;
-    JTextArea outputArea;
+// PasswordManager.java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+class PasswordManager {
+    private String adminPasswordHash;
     
-    LibraryGUI(LibrarySystem library) {
-        this.library = library;
-        setTitle("Library Management System");
-        setSize(400, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new FlowLayout());
-        
-        titleField = new JTextField(10);
-        authorField = new JTextField(10);
-        isbnField = new JTextField(10);
-        outputArea = new JTextArea(10, 30);
-        JButton addBookBtn = new JButton("Add Book");
-        JButton searchBookBtn = new JButton("Search Book");
-        JButton statsBtn = new JButton("Show Stats");
-        
-        add(new JLabel("Title:")); add(titleField);
-        add(new JLabel("Author:")); add(authorField);
-        add(new JLabel("ISBN:")); add(isbnField);
-        add(addBookBtn);
-        add(searchBookBtn);
-        add(statsBtn);
-        add(new JScrollPane(outputArea));
-        
-        addBookBtn.addActionListener(e -> {
-            library.addBook(titleField.getText(), authorField.getText(), isbnField.getText());
-            outputArea.append("Book added: " + titleField.getText() + "\n");
-        });
-        
-        searchBookBtn.addActionListener(e -> {
-            Book book = library.bookBST.search(titleField.getText());
-            if (book != null) outputArea.append("Found: " + book.title + "\n");
-            else outputArea.append("Book not found\n");
-        });
-        
-        statsBtn.addActionListener(e -> {
-            outputArea.append("Total Books: " + library.countBooks(library.bookBST.root) + "\n");
-            outputArea.append("Total Patrons: " + library.patrons.size() + "\n");
-            outputArea.append("Current Checkouts: " + library.checkoutQueue.size() + "\n");
-        });
+    public PasswordManager() {
+        adminPasswordHash = hashPassword("admin");
+    }
+    
+    public String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(password.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                hexString.append(String.format("%02x", b));
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public boolean validatePassword(String inputPassword) {
+        return hashPassword(inputPassword).equals(adminPasswordHash);
     }
 }
 
-public class Main {
+// GUI LibrarySystem
+public class LibrarySystemGUI {
+    private Library library;
+    private PasswordManager passwordManager;
+    
+    public LibrarySystemGUI() {
+        library = new Library();
+        passwordManager = new PasswordManager();
+        createLoginGUI();
+    }
+    
+    private void createLoginGUI() {
+        JFrame frame = new JFrame("Library System Login");
+        frame.setSize(300, 150);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        JPanel panel = new JPanel();
+        frame.add(panel);
+        placeLoginComponents(panel, frame);
+        
+        frame.setVisible(true);
+    }
+    
+    private void placeLoginComponents(JPanel panel, JFrame frame) {
+        panel.setLayout(null);
+        
+        JLabel userLabel = new JLabel("Password:");
+        userLabel.setBounds(10, 20, 80, 25);
+        panel.add(userLabel);
+        
+        JPasswordField passwordField = new JPasswordField(20);
+        passwordField.setBounds(100, 20, 165, 25);
+        panel.add(passwordField);
+        
+        JButton loginButton = new JButton("Login");
+        loginButton.setBounds(10, 50, 80, 25);
+        panel.add(loginButton);
+        
+        loginButton.addActionListener(e -> {
+            String inputPassword = new String(passwordField.getPassword());
+            if (passwordManager.validatePassword(inputPassword)) {
+                frame.dispose();
+                createLibraryGUI();
+            } else {
+                JOptionPane.showMessageDialog(null, "Incorrect password. Try again.");
+            }
+        });
+    }
+    
+    private void createLibraryGUI() {
+        JFrame frame = new JFrame("Library System");
+        frame.setSize(400, 300);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        JPanel panel = new JPanel();
+        frame.add(panel);
+        
+        JButton addBookButton = new JButton("Add Book");
+        JButton checkoutBookButton = new JButton("Checkout Book");
+        JButton returnBookButton = new JButton("Return Book");
+        
+        panel.add(addBookButton);
+        panel.add(checkoutBookButton);
+        panel.add(returnBookButton);
+        
+        addBookButton.addActionListener(e -> addBook());
+        checkoutBookButton.addActionListener(e -> checkoutBook());
+        returnBookButton.addActionListener(e -> returnBook());
+        
+        frame.setVisible(true);
+    }
+    
+    private void addBook() {
+        String title = JOptionPane.showInputDialog("Enter Book Title:");
+        String author = JOptionPane.showInputDialog("Enter Book Author:");
+        String isbn = JOptionPane.showInputDialog("Enter Book ISBN:");
+        library.addBook(new Book(title, author, isbn));
+        JOptionPane.showMessageDialog(null, "Book Added Successfully!");
+    }
+    
+    private void checkoutBook() {
+        JOptionPane.showMessageDialog(null, "Feature to be implemented.");
+    }
+    
+    private void returnBook() {
+        JOptionPane.showMessageDialog(null, "Feature to be implemented.");
+    }
+    
     public static void main(String[] args) {
-        LibrarySystem library = new LibrarySystem();
-        library.addBook("Java Programming", "John Doe", "123456");
-        library.addPatron("Alice", 1001);
-        
-        SwingUtilities.invokeLater(() -> new LibraryGUI(library).setVisible(true));
+        new LibrarySystemGUI();
     }
 }
